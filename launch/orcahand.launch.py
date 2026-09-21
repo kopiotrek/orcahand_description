@@ -8,14 +8,17 @@
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
     # Example usages:
     # - ros2 launch orcahand_description orcahand.launch.py
     # - ros2 launch orcahand_description orcahand.launch.py urdf_file:=v1/models/urdf/orcahand_left.urdf
+    # - ros2 launch orcahand_description orcahand.launch.py gui:=true
 
     # Launch argument for a URDF path relative to the package root.
     urdf_file_arg = DeclareLaunchArgument(
@@ -30,6 +33,13 @@ def generate_launch_description():
         LaunchConfiguration('urdf_file')
     ])
 
+    # Launch argument to use the joint_state_publisher GUI (sliders)
+    gui_arg = DeclareLaunchArgument(
+        'gui',
+        default_value='false',
+        description='Start joint_state_publisher_gui instead of joint_state_publisher'
+    )
+
     # RViz config path (static)
     orcahand_rviz_config_path = PathJoinSubstitution([
         FindPackageShare('orcahand_description'),
@@ -39,6 +49,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         urdf_file_arg,
+        gui_arg,
 
         Node(
             package='robot_state_publisher',
@@ -46,9 +57,10 @@ def generate_launch_description():
             name='robot_state_publisher',
             output='screen',
             parameters=[{
-                'robot_description': Command([
-                    'xacro ', orcahand_description_path
-                ])
+                'robot_description': ParameterValue(
+                    Command(['xacro ', orcahand_description_path]),
+                    value_type=str
+                )
             }],
         ),
 
@@ -57,6 +69,15 @@ def generate_launch_description():
             executable='joint_state_publisher',
             name='joint_state_publisher',
             output='screen',
+            condition=UnlessCondition(LaunchConfiguration('gui')),
+        ),
+
+        Node(
+            package='joint_state_publisher_gui',
+            executable='joint_state_publisher_gui',
+            name='joint_state_publisher_gui',
+            output='screen',
+            condition=IfCondition(LaunchConfiguration('gui')),
         ),
 
         Node(

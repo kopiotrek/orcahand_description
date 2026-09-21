@@ -30,11 +30,11 @@ else()
   find_package(urdf REQUIRED)
   find_package(xacro REQUIRED)
 
-  install(DIRECTORY assets/ v1/ v2/
+  install(DIRECTORY assets v1 v2
     DESTINATION share/${PROJECT_NAME}
   )
 
-  install(DIRECTORY launch/ rviz/
+  install(DIRECTORY launch rviz
     DESTINATION share/${PROJECT_NAME}
   )
 

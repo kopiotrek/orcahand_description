@@ -160,7 +160,10 @@
       <child link="right_thumb_mcp_jointbody"/>
       <origin xyz="-0.02821 0.01777 -0.01321" rpy="0.5385700000000002 -0.05594999999999972 -1.27047"/>
       <axis xyz="0.0 0.0 -1.0"/>
-      <limit lower="-0.87266" upper="0.87266" effort="100" velocity="100"/>
+      <!-- Lower limit widened from -0.87266 (-50deg) to -1.48353 (-85deg): a
+           hardware modification gave this joint 35deg more travel on the
+           extend side. Flex (upper) side is unchanged. -->
+      <limit lower="-1.48353" upper="0.87266" effort="100" velocity="100"/>
    </joint>
    <joint type="fixed" name="right_thumb_mcp_offset">
       <parent link="right_thumb_mcp_jointbody"/>
